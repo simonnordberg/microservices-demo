@@ -1,12 +1,12 @@
-name: Build productcatalogservice
+name: Build currencyservice
 on:
   push:
     paths:
-      - 'src/productcatalogservice/**'
+      - 'src/currencyservice/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: simonnordberg/productcatalogservice
+  IMAGE_NAME: simonnordberg/currencyservice
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./src/productcatalogservice/Dockerfile
+          file: ./src/currencyservice/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

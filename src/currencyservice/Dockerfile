@@ -6,7 +6,7 @@ RUN apk update && apk add --no-cache protobuf
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
-COPY src/productcatalogservice ./
+COPY src/currencyservice ./
 COPY proto ./proto
 
 RUN ./genproto.sh
@@ -17,7 +17,6 @@ RUN go build -o /server .
 FROM alpine:3.17.1 AS without-grpc-health-probe-bin
 WORKDIR /src
 COPY --from=build /server ./server
-COPY ./src/productcatalogservice/products.json .
 
 EXPOSE 3550
 ENTRYPOINT ["/src/server"]

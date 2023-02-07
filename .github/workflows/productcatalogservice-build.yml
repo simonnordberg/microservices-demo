@@ -2,7 +2,8 @@ name: Build productcatalogservice
 on:
   push:
     paths:
-      - src/productcatalogservice/**
+      - 'src/productcatalogservice/**'
+      - 'proto/**'
 
 env:
   REGISTRY: ghcr.io

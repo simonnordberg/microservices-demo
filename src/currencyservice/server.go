@@ -86,8 +86,6 @@ func (*currencyService) GetSupportedCurrencies(_ context.Context, _ *pb.Empty) (
 }
 
 func (*currencyService) Convert(_ context.Context, req *pb.CurrencyConversionRequest) (*pb.Money, error) {
-	log.Printf("Convert(%v, %v): %v\n", req.From, req.ToCode, req)
-
 	return &pb.Money{
 		CurrencyCode: req.ToCode,
 		Units:        req.From.Units,

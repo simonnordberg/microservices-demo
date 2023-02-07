@@ -1,0 +1,31 @@
+name: Deploy currencyservice
+on:
+  workflow_run:
+    workflows: [ Build currencyservice ]
+    branches: [ main ]
+    types:
+      - completed
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run nomad deploy
+        shell: bash
+        env:
+          NOMAD_ADDR: ${{ secrets.NOMAD_ADDR }}
+          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+        run: >
+          docker run 
+          -v ${{ github.workspace }}:/app 
+          -e NOMAD_ADDR -e NOMAD_TOKEN
+          hashicorp/levant:latest
+          deploy -ignore-no-changes -force-count /app/nomad/currencyservice.nomad

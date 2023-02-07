@@ -90,7 +90,7 @@ func (*currencyService) Convert(_ context.Context, req *pb.CurrencyConversionReq
 
 	return &pb.Money{
 		CurrencyCode: req.ToCode,
-		Units:        0,
-		Nanos:        0,
+		Units:        req.From.Units,
+		Nanos:        req.From.Nanos,
 	}, nil
 }

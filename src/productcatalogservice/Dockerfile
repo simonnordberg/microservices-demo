@@ -1,16 +1,23 @@
 FROM golang:1.19-alpine AS build
+
 WORKDIR /src
 
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
+RUN apk update && apk add --no-cache protobuf
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
-RUN go build -o /productcatalogservice .
+COPY src/productcatalogservice ./
+COPY proto ./proto
+
+RUN ./genproto.sh
+RUN go mod download
+
+RUN go build -o /server .
 
 FROM alpine:3.17.1 AS without-grpc-health-probe-bin
 WORKDIR /src
-COPY --from=build /productcatalogservice ./server
-COPY products.json .
+COPY --from=build /server ./server
+COPY ./src/productcatalogservice/products.json .
 
 EXPOSE 3550
 ENTRYPOINT ["/src/server"]

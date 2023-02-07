@@ -5,10 +5,6 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: productcatalogservice
 
-defaults:
-  run:
-    working-directory: ./src/productcatalogservice
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,7 +35,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v3
         with:
-          context: ./src/productcatalogservice
+          context: .
+          file: ./src/productcatalogservice/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

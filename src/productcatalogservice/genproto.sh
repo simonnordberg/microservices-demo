@@ -1,7 +1,13 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 PATH=$PATH:$GOPATH/bin
-protodir=../../proto
+
+if [ -d "./proto" ];
+then
+  protodir=./proto
+else
+  protodir=../../proto
+fi
 
 # Source: https://github.com/grpc/grpc-go/blob/master/cmd/protoc-gen-go-grpc/README.md
 # Consider using --go-grpc_out=require_unimplemented_servers=false

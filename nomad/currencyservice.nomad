@@ -1,5 +1,5 @@
 job "currencyservice-job" {
-  type = "service"
+  type        = "service"
   datacenters = ["dc1"]
 
   update {
@@ -31,8 +31,9 @@ job "currencyservice-job" {
       driver = "docker"
 
       config {
-        image = "ghcr.io/simonnordberg/currencyservice:main"
-        ports = ["grpc"]
+        image      = "ghcr.io/simonnordberg/currencyservice:main"
+        ports      = ["grpc"]
+        force_pull = true
       }
 
       resources {

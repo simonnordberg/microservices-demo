@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"net/http"
@@ -57,8 +56,8 @@ func main() {
 
 	svc := new(frontendServer)
 
-	mustMapEnv(&svc.productCatalogSvcAddr, "PRODUCT_CATALOG_SERVICE_ADDR")
-	mustMapEnv(&svc.currencySvcAddr, "CURRENCY_SERVICE_ADDR")
+	svc.productCatalogSvcAddr = getEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "localhost:3551")
+	svc.currencySvcAddr = getEnvOrDefault("CURRENCY_SERVICE_ADDR", "localhost:3550")
 
 	mustConnGRPC(ctx, &svc.productCatalogSvcConn, svc.productCatalogSvcAddr)
 	mustConnGRPC(ctx, &svc.currencySvcConn, svc.currencySvcAddr)
@@ -71,12 +70,11 @@ func main() {
 	}
 }
 
-func mustMapEnv(target *string, envKey string) {
-	v := os.Getenv(envKey)
-	if v == "" {
-		panic(fmt.Sprintf("environment variable %q not set", envKey))
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
 	}
-	*target = v
+	return fallback
 }
 
 func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {

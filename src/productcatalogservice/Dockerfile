@@ -19,7 +19,7 @@ WORKDIR /src
 COPY --from=build /server ./server
 COPY ./src/productcatalogservice/products.json .
 
-EXPOSE 3550
+EXPOSE 3551
 ENTRYPOINT ["/src/server"]
 
 FROM without-grpc-health-probe-bin

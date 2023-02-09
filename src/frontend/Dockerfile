@@ -19,7 +19,7 @@ WORKDIR /src
 COPY --from=build /server ./server
 COPY ./src/frontend/templates ./templates
 
-EXPOSE 3550
+EXPOSE 8080
 ENTRYPOINT ["/src/server"]
 
 FROM without-grpc-health-probe-bin

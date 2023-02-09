@@ -20,7 +20,7 @@ import (
 
 var (
 	log  *logrus.Logger
-	port = "3550"
+	port string
 )
 
 func init() {
@@ -38,9 +38,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
-	}
+	port = getEnvOrDefault("PORT", "3550")
 	log.Infof("starting grpc server at :%s", port)
 	run(port)
 	select {}
@@ -65,6 +63,13 @@ func run(port string) string {
 		}
 	}()
 	return l.Addr().String()
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
 
 type currencyService struct {

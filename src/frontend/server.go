@@ -15,7 +15,7 @@ import (
 
 var (
 	log                   *logrus.Logger
-	port                  = "3550"
+	port                  string
 	whitelistedCurrencies = map[string]bool{
 		"USD": true,
 		"EUR": true,
@@ -48,9 +48,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
-	}
+	port = getEnvOrDefault("PORT", "8080")
 	log.Infof("starting server at 0.0.0.0:%s", port)
 	ctx := context.Background()
 

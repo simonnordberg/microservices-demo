@@ -28,7 +28,7 @@ var (
 	cat           pb.ListProductsResponse
 	catalogMutex  *sync.Mutex
 	log           *logrus.Logger
-	port          = "3550"
+	port          string
 	reloadCatalog bool
 	extraLatency  = time.Duration(1) * time.Second
 )
@@ -69,9 +69,7 @@ func main() {
 		}
 	}()
 
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
-	}
+	port = getEnvOrDefault("PORT", "3551")
 	log.Infof("starting grpc server at :%s", port)
 	run(port)
 	select {}
@@ -96,6 +94,13 @@ func run(port string) string {
 		}
 	}()
 	return l.Addr().String()
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
 
 type productCatalog struct {

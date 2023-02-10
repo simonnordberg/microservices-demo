@@ -12,7 +12,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	_ "google.golang.org/grpc/xds"
+	_ "google.golang.org/grpc/balancer/grpclb"
 )
 
 var (

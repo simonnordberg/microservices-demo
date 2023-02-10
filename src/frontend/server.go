@@ -82,8 +82,7 @@ func mustConnGRPC(conn **grpc.ClientConn, addr string) {
 	defer cancel()
 
 	*conn, err = grpc.DialContext(ctx, addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig":[{"grpclb":{"childPolicy":[{"pick_first":{}}]}}]}`))
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}

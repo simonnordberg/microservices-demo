@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"time"
@@ -50,15 +51,14 @@ func main() {
 	flag.Parse()
 	port = getEnvOrDefault("PORT", "8080")
 	log.Infof("starting server at 0.0.0.0:%s", port)
-	ctx := context.Background()
 
 	svc := new(frontendServer)
 
 	svc.productCatalogSvcAddr = getEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "localhost:3551")
 	svc.currencySvcAddr = getEnvOrDefault("CURRENCY_SERVICE_ADDR", "localhost:3550")
 
-	mustConnGRPC(ctx, &svc.productCatalogSvcConn, svc.productCatalogSvcAddr)
-	mustConnGRPC(ctx, &svc.currencySvcConn, svc.currencySvcAddr)
+	mustConnGRPC(&svc.productCatalogSvcConn, svc.productCatalogSvcAddr)
+	mustConnGRPC(&svc.currencySvcConn, svc.currencySvcAddr)
 
 	handler := mux.NewRouter()
 	handler.HandleFunc("/", svc.homeHandler).Methods(http.MethodGet, http.MethodHead)
@@ -75,11 +75,12 @@ func getEnvOrDefault(key, fallback string) string {
 	return fallback
 }
 
-func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {
+func mustConnGRPC(conn **grpc.ClientConn, addr string) {
 	var err error
-	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
-	*conn, err = grpc.DialContext(ctx, addr, grpc.WithInsecure())
+
+	*conn, err = grpc.DialContext(ctx, addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}

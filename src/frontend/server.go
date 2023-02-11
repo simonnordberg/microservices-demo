@@ -10,9 +10,9 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	_ "google.golang.org/grpc/balancer/grpclb"
 )
 
 var (
@@ -82,7 +82,9 @@ func mustConnGRPC(conn **grpc.ClientConn, addr string) {
 	defer cancel()
 
 	*conn, err = grpc.DialContext(ctx, addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	)
 	if err != nil {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}

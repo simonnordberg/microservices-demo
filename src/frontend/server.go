@@ -10,7 +10,6 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/mbobakov/grpc-consul-resolver"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -28,11 +27,8 @@ var (
 )
 
 type frontendServer struct {
-	productCatalogSvcAddr string
-	productCatalogSvcConn *grpc.ClientConn
-
-	currencySvcAddr string
-	currencySvcConn *grpc.ClientConn
+	productCatalogService *grpc.ClientConn
+	currencyService       *grpc.ClientConn
 }
 
 func init() {
@@ -55,11 +51,8 @@ func main() {
 
 	svc := new(frontendServer)
 
-	svc.productCatalogSvcAddr = getEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "localhost:3551")
-	svc.currencySvcAddr = getEnvOrDefault("CURRENCY_SERVICE_ADDR", "localhost:3550")
-
-	mustConnGRPC(&svc.productCatalogSvcConn, svc.productCatalogSvcAddr)
-	mustConnGRPC(&svc.currencySvcConn, svc.currencySvcAddr)
+	connectGRPC(&svc.productCatalogService, getEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "productcatalogservice:8502"))
+	connectGRPC(&svc.currencyService, getEnvOrDefault("CURRENCY_SERVICE_ADDR", "currencyservice:8502"))
 
 	handler := mux.NewRouter()
 	handler.HandleFunc("/", svc.homeHandler).Methods(http.MethodGet, http.MethodHead)
@@ -76,7 +69,7 @@ func getEnvOrDefault(key, fallback string) string {
 	return fallback
 }
 
-func mustConnGRPC(conn **grpc.ClientConn, addr string) {
+func connectGRPC(conn **grpc.ClientConn, addr string) {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()

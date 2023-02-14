@@ -6,7 +6,7 @@ import (
 )
 
 func (fe *frontendServer) getCurrencies(ctx context.Context) ([]string, error) {
-	currs, err := pb.NewCurrencyServiceClient(fe.currencySvcConn).GetSupportedCurrencies(ctx, &pb.Empty{})
+	currs, err := pb.NewCurrencyServiceClient(fe.currencyService).GetSupportedCurrencies(ctx, &pb.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -20,7 +20,7 @@ func (fe *frontendServer) getCurrencies(ctx context.Context) ([]string, error) {
 }
 
 func (fe *frontendServer) getProducts(ctx context.Context) ([]*pb.Product, error) {
-	resp, err := pb.NewProductCatalogServiceClient(fe.productCatalogSvcConn).ListProducts(ctx, &pb.Empty{})
+	resp, err := pb.NewProductCatalogServiceClient(fe.productCatalogService).ListProducts(ctx, &pb.Empty{})
 	return resp.GetProducts(), err
 }
 
@@ -29,7 +29,7 @@ func (fe *frontendServer) convertCurrency(ctx context.Context, money *pb.Money, 
 		return money, nil
 	}
 
-	return pb.NewCurrencyServiceClient(fe.currencySvcConn).
+	return pb.NewCurrencyServiceClient(fe.currencyService).
 		Convert(ctx, &pb.CurrencyConversionRequest{
 			From:   money,
 			ToCode: currency})

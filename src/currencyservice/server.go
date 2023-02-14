@@ -38,7 +38,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	port = getEnvOrDefault("PORT", "3550")
+	port = getEnvOrDefault("PORT", "8502")
 	log.Infof("starting grpc server at :%s", port)
 	run(port)
 	select {}

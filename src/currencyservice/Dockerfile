@@ -18,7 +18,7 @@ FROM alpine:3.17.1 AS without-grpc-health-probe-bin
 WORKDIR /src
 COPY --from=build /server ./server
 
-EXPOSE 3550
+EXPOSE 8502
 ENTRYPOINT ["/src/server"]
 
 FROM without-grpc-health-probe-bin

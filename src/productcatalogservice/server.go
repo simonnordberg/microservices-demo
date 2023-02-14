@@ -69,7 +69,7 @@ func main() {
 		}
 	}()
 
-	port = getEnvOrDefault("PORT", "3551")
+	port = getEnvOrDefault("PORT", "8502")
 	log.Infof("starting grpc server at :%s", port)
 	run(port)
 	select {}

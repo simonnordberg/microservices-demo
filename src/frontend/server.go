@@ -43,7 +43,7 @@ func init() {
 	}
 	log.Out = os.Stdout
 
-	if ll, err := logrus.ParseLevel(getEnvOrDefault("LOG_LEVEL", "DEBUG")); err != nil {
+	if ll, err := logrus.ParseLevel(getEnvOrDefault("LOG_LEVEL", "debug")); err != nil {
 		log.SetLevel(ll)
 	}
 }
@@ -68,7 +68,7 @@ func main() {
 
 func getEnvOrDefault(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
-		log.Debugf("Getting environment variable: %s=%s", key, value)
+		log.Infof("Getting environment variable: %s=%s", key, value)
 		return value
 	}
 	return fallback

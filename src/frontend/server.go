@@ -64,6 +64,7 @@ func main() {
 
 func getEnvOrDefault(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
+		log.Debugf("Getting environment variable: %s=%s", key, value)
 		return value
 	}
 	return fallback

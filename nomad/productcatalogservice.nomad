@@ -3,17 +3,20 @@ job "productcatalogservice-job" {
   datacenters = ["eu-west-1a"]
 
   update {
-    max_parallel     = 1
-    min_healthy_time = "5s"
-    healthy_deadline = "1m"
+    canary            = 1
+    max_parallel      = 1
+    min_healthy_time  = "5s"
+    healthy_deadline  = "1m"
+    progress_deadline = 0 # fail immediately
+    auto_revert       = true
+    auto_promote      = true
   }
 
   group "productcatalogservice-group" {
-    count = 1
+    count = 2
 
     network {
       mode = "bridge"
-
       port "grpc" {
         to = 8502
       }
@@ -21,7 +24,7 @@ job "productcatalogservice-job" {
 
     service {
       name = "productcatalogservice"
-      port = "grpc"
+      port = 8502
 
       connect {
         sidecar_service {}
@@ -30,7 +33,8 @@ job "productcatalogservice-job" {
       check {
         type     = "grpc"
         interval = "5s"
-        timeout  = "5s"
+        timeout  = "2s"
+        port     = "grpc"
       }
     }
 
@@ -39,13 +43,12 @@ job "productcatalogservice-job" {
 
       config {
         image      = "ghcr.io/simonnordberg/productcatalogservice:main"
-        ports      = ["grpc"]
         force_pull = true
       }
 
       resources {
-        cpu    = 100
-        memory = 32
+        cpu    = 200
+        memory = 100
       }
     }
   }

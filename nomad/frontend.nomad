@@ -3,9 +3,13 @@ job "frontend-job" {
   datacenters = ["eu-west-1a"]
 
   update {
-    max_parallel     = 1
-    min_healthy_time = "5s"
-    healthy_deadline = "1m"
+    canary            = 1
+    max_parallel      = 1
+    min_healthy_time  = "5s"
+    healthy_deadline  = "1m"
+    progress_deadline = 0 # fail immediately
+    auto_revert       = true
+    auto_promote      = true
   }
 
   group "frontend-group" {
@@ -15,7 +19,8 @@ job "frontend-job" {
       mode = "bridge"
 
       port "http" {
-        to = 8080
+        to     = 8080
+        static = 8080
       }
     }
 
@@ -54,17 +59,18 @@ job "frontend-job" {
         PRODUCT_CATALOG_SERVICE_ADDR = "${NOMAD_UPSTREAM_ADDR_productcatalogservice}"
         GRPC_GO_LOG_SEVERITY_LEVEL   = "info"
         GRPC_GO_LOG_VERBOSITY_LEVEL  = 2
+        LOG_LEVEL                    = "trace"
       }
 
       config {
         image      = "ghcr.io/simonnordberg/frontend:main"
-        ports      = ["http"]
+        #        ports      = ["http"]
         force_pull = true
       }
 
       resources {
-        cpu    = 100
-        memory = 32
+        cpu    = 200
+        memory = 100
       }
     }
   }

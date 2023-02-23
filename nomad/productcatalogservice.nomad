@@ -1,4 +1,4 @@
-job "currencyservice-job" {
+job "productcatalogservice-job" {
   type        = "service"
   datacenters = ["eu-west-1a"]
 
@@ -8,7 +8,7 @@ job "currencyservice-job" {
     healthy_deadline = "1m"
   }
 
-  group "currencyservice-group" {
+  group "productcatalogservice-group" {
     count = 1
 
     network {
@@ -20,7 +20,7 @@ job "currencyservice-job" {
     }
 
     service {
-      name = "currencyservice"
+      name = "productcatalogservice"
       port = "grpc"
 
       connect {
@@ -38,7 +38,7 @@ job "currencyservice-job" {
       driver = "docker"
 
       config {
-        image      = "ghcr.io/simonnordberg/currencyservice:main"
+        image      = "ghcr.io/simonnordberg/productcatalogservice:main"
         ports      = ["grpc"]
         force_pull = true
       }

@@ -42,6 +42,10 @@ func init() {
 		TimestampFormat: time.RFC3339Nano,
 	}
 	log.Out = os.Stdout
+
+	if ll, err := logrus.ParseLevel(getEnvOrDefault("LOG_LEVEL", "DEBUG")); err != nil {
+		log.SetLevel(ll)
+	}
 }
 
 func main() {

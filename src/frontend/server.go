@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
+	"simonnordberg.com/demoshop/shared/env"
+	"simonnordberg.com/demoshop/shared/logging"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -32,46 +35,30 @@ type frontendServer struct {
 }
 
 func init() {
-	log = logrus.New()
-	log.Formatter = &logrus.JSONFormatter{
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyTime:  "timestamp",
-			logrus.FieldKeyLevel: "severity",
-			logrus.FieldKeyMsg:   "message",
-		},
-		TimestampFormat: time.RFC3339Nano,
-	}
-	log.Out = os.Stdout
-
-	if ll, err := logrus.ParseLevel(getEnvOrDefault("LOG_LEVEL", "debug")); err != nil {
-		log.SetLevel(ll)
-	}
+	log = logging.Init()
 }
 
 func main() {
 	flag.Parse()
-	port = getEnvOrDefault("PORT", "8080")
+	port = env.GetEnvOrDefault("PORT", "8080")
 	log.Infof("starting server at 0.0.0.0:%s", port)
 
 	svc := new(frontendServer)
 
-	connectGRPC(&svc.productCatalogService, getEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "productcatalogservice:8502"))
-	connectGRPC(&svc.currencyService, getEnvOrDefault("CURRENCY_SERVICE_ADDR", "currencyservice:8502"))
+	connectGRPC(&svc.productCatalogService, env.GetEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "productcatalogservice:8502"))
+	connectGRPC(&svc.currencyService, env.GetEnvOrDefault("CURRENCY_SERVICE_ADDR", "currencyservice:8502"))
 
 	handler := mux.NewRouter()
 	handler.HandleFunc("/", svc.homeHandler).Methods(http.MethodGet, http.MethodHead)
+	handler.HandleFunc("/debug", svc.debugHandler).Methods(http.MethodGet, http.MethodHead)
+
+	for _, e := range os.Environ() {
+		fmt.Println(e)
+	}
 
 	if err := http.ListenAndServe("0.0.0.0:"+port, handler); err != nil {
 		log.Fatal("failed to serve: %v", err)
 	}
-}
-
-func getEnvOrDefault(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		log.Infof("Getting environment variable: %s=%s", key, value)
-		return value
-	}
-	return fallback
 }
 
 func connectGRPC(conn **grpc.ClientConn, addr string) {

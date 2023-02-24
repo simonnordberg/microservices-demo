@@ -3,6 +3,15 @@ syntax = "proto3";
 package demoshop;
 option go_package = "simonnordberg.com/demoshop/protos";
 
+// Runtime service
+service RuntimeService {
+  rpc GetEnvironment(Empty) returns (Environment) {}
+}
+
+message Environment {
+  map<string, string> variables = 1;
+}
+
 // Cart
 service CartService {
   rpc AddItem(AddItemRequest) returns (Empty) {}

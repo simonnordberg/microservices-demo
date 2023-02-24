@@ -7,6 +7,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
+	simonnordberg.com/demoshop/shared v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -16,3 +17,5 @@ require (
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
 )
+
+replace simonnordberg.com/demoshop/shared => ../shared

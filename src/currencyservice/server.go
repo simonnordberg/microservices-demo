@@ -1,21 +1,17 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
-	"net"
-	"os"
-	"time"
-
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
-	pb "simonnordberg.com/demoshop/currencyservice/genproto"
-
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
+	"net"
+	pb "simonnordberg.com/demoshop/currencyservice/genproto"
+	"simonnordberg.com/demoshop/currencyservice/rpc"
+	"simonnordberg.com/demoshop/shared/env"
+	"simonnordberg.com/demoshop/shared/logging"
 )
 
 var (
@@ -24,22 +20,14 @@ var (
 )
 
 func init() {
-	log = logrus.New()
-	log.Formatter = &logrus.JSONFormatter{
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyTime:  "timestamp",
-			logrus.FieldKeyLevel: "severity",
-			logrus.FieldKeyMsg:   "message",
-		},
-		TimestampFormat: time.RFC3339Nano,
-	}
-	log.Out = os.Stdout
+	log = logging.Init()
 }
 
 func main() {
 	flag.Parse()
-	port = getEnvOrDefault("PORT", "8502")
+	port = env.GetEnvOrDefault("PORT", "8502")
 	log.Infof("starting grpc server at :%s", port)
+
 	run(port)
 	select {}
 }
@@ -51,10 +39,9 @@ func run(port string) string {
 	}
 	var srv *grpc.Server
 	srv = grpc.NewServer()
-	svc := &currencyService{}
-
-	pb.RegisterCurrencyServiceServer(srv, svc)
-	healthpb.RegisterHealthServer(srv, svc)
+	pb.RegisterCurrencyServiceServer(srv, &rpc.CurrencyService{})
+	pb.RegisterRuntimeServiceServer(srv, &rpc.RuntimeService{})
+	healthpb.RegisterHealthServer(srv, &rpc.HealthService{})
 	reflection.Register(srv)
 
 	go func() {
@@ -63,37 +50,4 @@ func run(port string) string {
 		}
 	}()
 	return l.Addr().String()
-}
-
-func getEnvOrDefault(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
-type currencyService struct {
-	pb.UnimplementedCurrencyServiceServer
-}
-
-func (c *currencyService) Check(_ context.Context, _ *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
-	return &healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil
-}
-
-func (c *currencyService) Watch(_ *healthpb.HealthCheckRequest, _ healthpb.Health_WatchServer) error {
-	return status.Errorf(codes.Unimplemented, "health check via Watch not implemented")
-}
-
-func (*currencyService) GetSupportedCurrencies(_ context.Context, _ *pb.Empty) (*pb.GetSupportedCurrenciesResponse, error) {
-	return &pb.GetSupportedCurrenciesResponse{
-		CurrencyCodes: []string{"USD", "SEK", "NOK"},
-	}, nil
-}
-
-func (*currencyService) Convert(_ context.Context, req *pb.CurrencyConversionRequest) (*pb.Money, error) {
-	return &pb.Money{
-		CurrencyCode: req.ToCode,
-		Units:        req.From.Units,
-		Nanos:        req.From.Nanos,
-	}, nil
 }

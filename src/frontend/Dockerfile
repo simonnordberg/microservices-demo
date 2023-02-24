@@ -6,6 +6,7 @@ RUN apk update && apk add --no-cache protobuf
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
+COPY src/shared /shared
 COPY src/frontend ./
 COPY proto ./proto
 

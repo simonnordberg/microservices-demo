@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"google.golang.org/grpc"
 	pb "simonnordberg.com/demoshop/frontend/genproto"
 )
 
@@ -33,4 +34,20 @@ func (fe *frontendServer) convertCurrency(ctx context.Context, money *pb.Money, 
 		Convert(ctx, &pb.CurrencyConversionRequest{
 			From:   money,
 			ToCode: currency})
+}
+
+func (fe *frontendServer) getEnvironments(ctx context.Context) error {
+	services := []*grpc.ClientConn{fe.currencyService, fe.productCatalogService}
+	for _, s := range services {
+		env, err := pb.NewRuntimeServiceClient(s).GetEnvironment(ctx, &pb.Empty{})
+		if err != nil {
+			return err
+		}
+		log.Debugf("Environment for: %s", s.Target())
+		for k, v := range env.Variables {
+			log.Debugf("%s = %s", k, v)
+		}
+	}
+
+	return nil
 }

@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  currencyservice:
+    build:
+      context: .
+      dockerfile: ./src/currencyservice/Dockerfile
+#    ports:
+#      - "18502:8502"
+  productcatalogservice:
+    build:
+      context: .
+      dockerfile: ./src/productcatalogservice/Dockerfile
+#    ports:
+#      - "28502:8502"
+  frontend:
+    build:
+      context: .
+      dockerfile: ./src/frontend/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - CURRENCY_SERVICE_ADDR=currencyservice:8502
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:8502

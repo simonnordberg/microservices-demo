@@ -14,6 +14,13 @@ var (
 		}).ParseGlob("templates/*.html"))
 )
 
+func (fe *frontendServer) debugHandler(w http.ResponseWriter, r *http.Request) {
+	err := fe.getEnvironments(r.Context())
+	if err != nil {
+		log.Debugf("error: %v", err)
+	}
+}
+
 func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 	currencies, err := fe.getCurrencies(r.Context())
 	if err != nil {

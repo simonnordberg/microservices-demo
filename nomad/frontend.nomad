@@ -64,7 +64,6 @@ job "frontend-job" {
 
       config {
         image      = "ghcr.io/simonnordberg/frontend:main"
-        #        ports      = ["http"]
         force_pull = true
       }
 

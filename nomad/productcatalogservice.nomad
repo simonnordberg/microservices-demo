@@ -48,7 +48,7 @@ job "productcatalogservice-job" {
 
       resources {
         cpu    = 200
-        memory = 100
+        memory = 80
       }
     }
   }

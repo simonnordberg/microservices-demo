@@ -13,7 +13,7 @@ job "productcatalogservice-job" {
   }
 
   group "productcatalogservice-group" {
-    count = 2
+    count = 1
 
     network {
       mode = "bridge"

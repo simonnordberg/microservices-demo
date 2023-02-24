@@ -13,7 +13,7 @@ job "currencyservice-job" {
   }
 
   group "currencyservice-group" {
-    count = 1
+    count = 2
 
     network {
       mode = "bridge"
@@ -48,7 +48,7 @@ job "currencyservice-job" {
 
       resources {
         cpu    = 200
-        memory = 100
+        memory = 80
       }
     }
   }

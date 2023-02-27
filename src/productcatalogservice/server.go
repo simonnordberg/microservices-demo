@@ -3,11 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
+
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	"net"
 	pb "simonnordberg.com/demoshop/productcatalogservice/genproto"
 	"simonnordberg.com/demoshop/productcatalogservice/rpc"
 	"simonnordberg.com/demoshop/shared/env"
@@ -36,8 +40,13 @@ func run(port string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var srv *grpc.Server
-	srv = grpc.NewServer()
+	var srv = grpc.NewServer(
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(log)),
+			),
+		),
+	)
 
 	pb.RegisterProductCatalogServiceServer(srv, &rpc.ProductCatalog{})
 	pb.RegisterRuntimeServiceServer(srv, &rpc.RuntimeService{})

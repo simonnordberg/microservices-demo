@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -38,7 +40,14 @@ func run(port string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var srv = grpc.NewServer()
+
+	var srv = grpc.NewServer(
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(log)),
+			),
+		),
+	)
 	pb.RegisterCurrencyServiceServer(srv, &rpc.CurrencyService{})
 	pb.RegisterRuntimeServiceServer(srv, &rpc.RuntimeService{})
 	healthpb.RegisterHealthServer(srv, &rpc.HealthService{})

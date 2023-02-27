@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	"net"
 	pb "simonnordberg.com/demoshop/currencyservice/genproto"
 	"simonnordberg.com/demoshop/currencyservice/rpc"
 	"simonnordberg.com/demoshop/shared/env"
@@ -37,8 +38,7 @@ func run(port string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var srv *grpc.Server
-	srv = grpc.NewServer()
+	var srv = grpc.NewServer()
 	pb.RegisterCurrencyServiceServer(srv, &rpc.CurrencyService{})
 	pb.RegisterRuntimeServiceServer(srv, &rpc.RuntimeService{})
 	healthpb.RegisterHealthServer(srv, &rpc.HealthService{})

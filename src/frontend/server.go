@@ -4,14 +4,15 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/credentials/insecure"
-	"net/http"
-	"os"
 	"simonnordberg.com/demoshop/shared/env"
 	"simonnordberg.com/demoshop/shared/logging"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -31,7 +32,7 @@ var (
 
 type frontendServer struct {
 	productCatalogService *grpc.ClientConn
-	currencyService       *grpc.ClientConn
+	// currencyService       *grpc.ClientConn
 }
 
 func init() {
@@ -46,7 +47,7 @@ func main() {
 	svc := new(frontendServer)
 
 	connectGRPC(&svc.productCatalogService, env.GetEnvOrDefault("PRODUCT_CATALOG_SERVICE_ADDR", "productcatalogservice:8502"))
-	connectGRPC(&svc.currencyService, env.GetEnvOrDefault("CURRENCY_SERVICE_ADDR", "currencyservice:8502"))
+	//	connectGRPC(&svc.currencyService, env.GetEnvOrDefault("CURRENCY_SERVICE_ADDR", "currencyservice:8502"))
 
 	handler := mux.NewRouter()
 	handler.HandleFunc("/", svc.homeHandler).Methods(http.MethodGet, http.MethodHead)

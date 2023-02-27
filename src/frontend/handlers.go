@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
 	pb "simonnordberg.com/demoshop/frontend/genproto"
 )
 
@@ -22,11 +23,13 @@ func (fe *frontendServer) debugHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
-	currencies, err := fe.getCurrencies(r.Context())
-	if err != nil {
-		log.Fatalf("could not retrieve currencies: %v", err)
-		return
-	}
+	/*
+		currencies, err := fe.getCurrencies(r.Context())
+		if err != nil {
+			log.Fatalf("could not retrieve currencies: %v", err)
+			return
+		}
+	*/
 	products, err := fe.getProducts(r.Context())
 	if err != nil {
 		log.Fatalf("could not retrieve products: %v", err)
@@ -34,21 +37,25 @@ func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type productView struct {
-		Item  *pb.Product
-		Price *pb.Money
+		Item *pb.Product
+		//		Price *pb.Money
 	}
 	ps := make([]productView, len(products))
+
 	for i, p := range products {
-		price, err := fe.convertCurrency(r.Context(), p.GetPriceUsd(), "SEK")
-		if err != nil {
-			log.Fatalf("could to do currency conversion: %v", err)
-			return
-		}
-		ps[i] = productView{p, price}
+		/*
+				price, err := fe.convertCurrency(r.Context(), p.GetPriceUsd(), "SEK")
+				if err != nil {
+					log.Fatalf("could to do currency conversion: %v", err)
+					return
+				}
+			ps[i] = productView{p, price}
+		*/
+		ps[i] = productView{p}
 	}
 
 	if err := templates.ExecuteTemplate(w, "home", map[string]interface{}{
-		"currencies": currencies,
+		"currencies": []string{"USD"},
 		"products":   ps,
 	}); err != nil {
 		log.Error(err)
